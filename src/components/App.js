@@ -5,10 +5,12 @@ import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Questions from "./Questions";
+import NextButton from "./NextButton";
 
 const initialState = {
   questions: [],
   status: "loading",
+  //We'll use this index here to take a certain questions object out of the questions array
   index: 0,
   answer: null,
   points: 0,
@@ -42,6 +44,12 @@ function reducer(state, action) {
             ? state.points + question.points
             : state.points,
       };
+    case "nextQuestion":
+      return {
+        ...state,
+        index: state.index + 1,
+        answer: null,
+      };
 
     default:
       throw new Error("Action unknown");
@@ -53,8 +61,7 @@ export default function App() {
     initialState
   );
   const numQuestions = questions.length;
-  // const questions = state.questions;
-  // const status = state.status
+
   useEffect(function () {
     fetch("http://localhost:9000/questions")
       .then((res) => res.json())
@@ -71,11 +78,14 @@ export default function App() {
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
         {status === "active" && (
-          <Questions
-            question={questions[index]}
-            dispatch={dispatch}
-            answer={answer}
-          />
+          <>
+            <Questions
+              question={questions[index]}
+              dispatch={dispatch}
+              answer={answer}
+            />
+            <NextButton dispatch={dispatch} answer={answer} />
+          </>
         )}
       </Main>
     </div>
